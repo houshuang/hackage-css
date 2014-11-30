@@ -2,40 +2,63 @@
 
 import qualified Data.Map as M
 import Data.String.Here.Interpolated (i)
+import Text.ParserCombinators.Parsec 
+import System.Environment
+import Control.Monad (join)
+import Data.Either (rights)
+import System.Environment (getArgs)
 
-hs2pygments = M.fromList [
-	("background", ".hll"),
-	("foreground", ".w"), -- whitespace
-	(".hs-keyglyph", ".p"),
-	(".hs-layout", ".o"),
-	(".hs-keyword", ".k"),
-	(".hs-comment", ".c"),
-	(".hs-comment a", ".c"),
-	(".hs-str", ".s"),
-	(".hs-chr", ".s"),
-	(".hs-keyword", ".k"),
-	(".hs-conid", ".nc"),
-	(".hs-varid", ".nf"),
-	(".hs-conop", ".p"),
-	(".hs-varop", ".p"),
-	(".hs-num", ".m"),
-	(".hs-cpp", ".kr"),
-	(".hs-sel", ""),
-	(".hs-definition", ".kd")]
+type HS = String
+type Pygments = String
+type CSS = String
+type HS2PMapping = M.Map HS Pygments
+type P2CSSMapping = M.Map Pygments CSS
+type HS2CSSMapping = M.Map HS CSS
 
-preamble :: String -> String -> String
-preamble fore back = 
-	[i|
-body {
-	background-color: ${fore};
-}
+parseLinePygments :: Parser (Pygments, CSS)
+parseLinePygments = do 
+	string ".codehilite ."
+	x <- many alphaNum
+	y <- manyTill anyChar $ char '}'
+	return $ ("." ++ x, y ++ ";}")
 
-.pre {
-	font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
-	font-size: 12px;
-	color: ${back};
-	overflow: auto;
-	border: 10px solid ${back};
-}|]
+parseLinesPygments :: String -> P2CSSMapping
+parseLinesPygments x = M.fromList $ rights $ 
+	map (parse parseLinePygments "parse") $ lines x
 
-main = undefined
+convertHStoCSS :: HS2PMapping -> String -> HS2CSSMapping
+convertHStoCSS from str =
+	M.map lookupCSS from
+	where
+		mapping :: P2CSSMapping
+		mapping = parseLinesPygments str
+		lookupCSS :: Pygments -> CSS
+		lookupCSS x = M.findWithDefault ("" :: CSS) x mapping
+
+generateCSSFile :: HS2PMapping -> String -> String
+generateCSSFile mapping str = [i|
+	body ${back}
+
+	pre ${fore}
+
+	pre {
+		font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+		font-size: 12px;
+		overflow: auto;
+	}
+
+	${rest}|]
+
+	where
+		cssmap = convertHStoCSS mapping str
+		fore = cssmap M.! "foreground"
+		back = cssmap M.! "background"
+		rest = M.foldMapWithKey (\x y -> [i|${x} ${y}
+|]) cssmap
+
+main = do
+	args <- getArgs
+	gh <- readFile $ head args
+	mappingstr <- readFile "mapping.txt"
+	let mapping = read (join . lines $ mappingstr) :: HS2PMapping
+	putStrLn $ generateCSSFile mapping gh
