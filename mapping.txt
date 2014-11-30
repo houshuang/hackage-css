@@ -1,0 +1,1 @@
+fromList [(".hs-chr",".se"),(".hs-comment",".c1"),(".hs-comment a",".c1"),(".hs-conid",".kt"),(".hs-conop",".o"),(".hs-cpp",".kr"),(".hs-definition",".nf"),(".hs-keyglyph",".ow"),(".hs-keyword",".kr"),(".hs-layout",".p"),(".hs-num",".m"),(".hs-str",".s"),(".hs-varid",".n"),(".hs-varop",".o"),("background",".background"),("foreground",".k")]

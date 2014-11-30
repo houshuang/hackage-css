@@ -7,6 +7,7 @@ import System.Environment
 import Control.Monad (join)
 import Data.Either (rights)
 import System.Environment (getArgs)
+import Debug.Trace
 
 type HS = String
 type Pygments = String
@@ -17,7 +18,7 @@ type HS2CSSMapping = M.Map HS CSS
 
 parseLinePygments :: Parser (Pygments, CSS)
 parseLinePygments = do 
-	string ".codehilite ."
+	char '.'
 	x <- many alphaNum
 	y <- manyTill anyChar $ char '}'
 	return $ ("." ++ x, y ++ ";}")
@@ -39,19 +40,18 @@ generateCSSFile :: HS2PMapping -> String -> String
 generateCSSFile mapping str = [i|
 	body ${back}
 
-	pre ${fore}
-
 	pre {
 		font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
 		font-size: 12px;
 		overflow: auto;
 	}
 
+	pre ${back}
+
 	${rest}|]
 
 	where
 		cssmap = convertHStoCSS mapping str
-		fore = cssmap M.! "foreground"
 		back = cssmap M.! "background"
 		rest = M.foldMapWithKey (\x y -> [i|${x} ${y}
 |]) cssmap
