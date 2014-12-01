@@ -34,7 +34,7 @@ convertHStoCSS from str =
 		mapping :: P2CSSMapping
 		mapping = parseLinesPygments str
 		lookupCSS :: Pygments -> CSS
-		lookupCSS x = M.findWithDefault ("" :: CSS) x mapping
+		lookupCSS x = M.findWithDefault ("{ color: #000000;}" :: CSS) x mapping
 
 generateCSSFile :: HS2PMapping -> String -> String
 generateCSSFile mapping str = [i|
@@ -47,12 +47,14 @@ generateCSSFile mapping str = [i|
 	}
 
 	pre ${back}
+	pre ${fore}
 
 	${rest}|]
 
 	where
 		cssmap = convertHStoCSS mapping str
 		back = cssmap M.! "background"
+		fore = cssmap M.! "foreground"
 		rest = M.foldMapWithKey (\x y -> [i|${x} ${y}
 |]) cssmap
 
