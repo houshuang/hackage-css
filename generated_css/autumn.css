@@ -1,0 +1,29 @@
+
+	body  { background-color: #ffffff; ;}
+
+	pre {
+		font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+		font-size: 12px;
+		overflow: auto;
+	}
+
+	pre  { background-color: #ffffff; ;}
+	pre  { color: #bbbbbb ;}
+
+	.hs-chr  { color: #aa5500 ;}
+.hs-comment  { color: #aaaaaa; font-style: italic ;}
+.hs-comment a  { color: #aaaaaa; font-style: italic ;}
+.hs-conid  { color: #00aaaa ;}
+.hs-conop { color: #000000;}
+.hs-cpp  { color: #0000aa ;}
+.hs-definition  { color: #00aa00 ;}
+.hs-keyglyph  { color: #0000aa ;}
+.hs-keyword  { color: #0000aa ;}
+.hs-layout { color: #000000;}
+.hs-num  { color: #009999 ;}
+.hs-str  { color: #aa5500 ;}
+.hs-varid { color: #000000;}
+.hs-varop { color: #000000;}
+background  { background-color: #ffffff; ;}
+foreground  { color: #bbbbbb ;}
+
